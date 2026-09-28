@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>CoP Rifugi climatici e microclima urbano</title>
+    
+    <!-- CSS di Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- CSS per i Marker Cluster -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+
+    <style>
+        #map { width: 100%; height: 600px; }
+        .custom-map-marker { background: transparent; border: none; }
+        
+        /* Personalizzazione grafica dei cluster */
+        .marker-cluster-small, .marker-cluster-medium, .marker-cluster-large {
+            background-color: rgba(59, 130, 246, 0.4);
+        }
+        .marker-cluster div {
+            background-color: rgba(59, 130, 246, 0.9);
+            color: white;
+            font-weight: bold;
+            font-family: sans-serif;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="map"></div>
+
+    <!-- JS di Leaflet -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- JS per i Marker Cluster -->
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+
+    <script>
+        // 1. Inizializzazione della mappa (centrata per coprire anche Torino)[cite: 1]
+        var map = L.map('map').setView([43.0, 11.5], 6);
+
+        // 2. Sfondo CartoDB con etichette e API Key[cite: 1]
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}{r}.png?key=cb1_2uv1_1_532abe28d98c03841c78d707', {
+            attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+            subdomains: 'abcd',
+            maxZoom: 20
+        }).addTo(map);
+
+        // 3. Icona a spill classica (Blu per Roma)[cite: 1]
+        var blueIcon = L.divIcon({
+            className: 'custom-map-marker',
+            html: `
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="#3b82f6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.3));">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                    <circle cx="12" cy="10" r="3" fill="#fff"></circle>
+                </svg>
+            `,
+            iconSize: [28, 28],
+            iconAnchor: [14, 28],
+            popupAnchor: [0, -28]
+        });
+
+        // 4. Icona CIRCOLARE (Rosa per Napoli e Torino)[cite: 1]
+        var pinkCircleIcon = L.divIcon({
+            className: 'custom-map-marker',
+            html: `
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" style="filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.3));">
+                    <circle cx="12" cy="12" r="10" fill="#ec4899" stroke="#fff" stroke-width="2"></circle>
+                    <circle cx="12" cy="12" r="3.5" fill="#fff"></circle>
+                </svg>
+            `,
+            iconSize: [28, 28],
+            iconAnchor: [14, 14],
+            popupAnchor: [0, -14]
+        });
+
+        // 5. Creazione del gruppo di cluster con supporto all'espansione a raggiera[cite: 1]
+        var markersGroup = L.markerClusterGroup({
+            spiderfyOnMaxZoom: true,
+            showCoverageOnHover: false,
+            zoomToBoundsOnClick: true
+        });
+
+        // 6. Marker ROMA (ENEA)
+        var popupContentEnea = `
+            <div style="font-family: sans-serif; max-width: 280px; line-height: 1.4; word-break: break-word;">
+                <h3 style="margin: 0 0 8px 0; color: #1e293b; font-size: 15px;">ENEA - Dipartimento Tecnologie Energetiche e Fonti Rinnovabili (TERIN)</h3>
+                <p style="margin: 0 0 10px 0; font-size: 13px;">
+                    <a href="https://www.enea.it" target="_blank" style="color: #2563eb; text-decoration: none;">www.enea.it</a> - 
+                    <a href="https://energia.enea.it/chi-siamo/il-dipartimento" target="_blank" style="color: #2563eb; text-decoration: none;">TERIN</a>
+                </p>
+                <p style="margin: 0 0 6px 0; font-size: 12px;"><strong>Keywords:</strong> M&V Comfort, Tecnologie di Mitigazione del Microclima, Consumi elettrici, Citizen Science per Indicatori e baseline abitudini/preferenze</p>
+                <p style="margin: 0 0 6px 0; font-size: 12px;"><strong>Progetti:</strong> nell’ambito della “Ricerca nazionale “Ricerca di Sistema Elettrico". Accordo di Programma MASE-ENEA “Tecnologie per la penetrazione efficiente del vettore elettrico negli usi finali (Progetto 1.7: Attività 1.20 Soluzioni tecnologiche integrate nelle CER).</p>
+                <p style="margin: 0 0 4px 0; font-size: 12px;"><strong>Altri link:</strong></p>
+                <ul style="margin: 0; padding-left: 15px; font-size: 11px;">
+                    <li style="margin-bottom: 3px;"><a href="https://www.eventi.enea.it/tutti-gli-eventi-enea/evento-sui-rifugi-climatici.html" target="_blank" style="color: #2563eb; text-decoration: none;">Evento sui rifugi climatici</a></li>
+                    <li style="margin-bottom: 3px;"><a href="https://openhouseroma.org/node/137684" target="_blank" style="color: #2563eb; text-decoration: none;">Open House Roma</a></li>
+                    <li><a href="https://www.ecofuturo.eu/magazine/numero4_2026/#page=54" target="_blank" style="color: #2563eb; text-decoration: none;">Ecofuturo Magazine</a></li>
+                </ul>
+            </div>
+        `;
+        var markerRoma = L.marker([41.934788941533554, 12.46445595919924], { icon: blueIcon });
+        markerRoma.bindPopup(popupContentEnea);
+        markersGroup.addLayer(markerRoma);
+
+        // 7. Marker NAPOLI (CLEANAP ETS)[cite: 1]
+        var popupContentNapoli = `
+            <div style="font-family: sans-serif; max-width: 280px; line-height: 1.4;">
+                <h3 style="margin: 0 0 8px 0; color: #1e293b; font-size: 16px;">CLEANAP ETS</h3>
+                <p style="margin: 0 0 10px 0; font-size: 13px;"><a href="https://www.cleanap.org" target="_blank" style="color: #2563eb; text-decoration: none;">www.cleanap.org</a></p>
+                <p style="margin: 0 0 6px 0; font-size: 12px;"><strong>Keywords:</strong> GIS, mappatura, remote sensing, open data, data analytics, openstreetmap, rilevazioni del microclima, isole di calore, resilienza climatica, rifugi climatici, advocacy climatica, pianificazione urbanistica, comunità, monitoraggio microclimatico, giustizia climatica, giustizia di genere</p>
+                <p style="margin: 0 0 6px 0; font-size: 12px;"><strong>Progetti:</strong> Girls4Climate; <a href="https://www.rifugiclimaticinapoli.it" target="_blank" style="color: #2563eb; text-decoration: none;">www.rifugiclimaticinapoli.it</a></p>
+                <p style="margin: 0; font-size: 12px;"><strong>Altri link:</strong> <a href="https://www.instagram.com/cleanap" target="_blank" style="color: #2563eb; text-decoration: none;">www.instagram.com/cleanap</a></p>
+            </div>
+        `;
+        var markerNapoli = L.marker([40.8518, 14.2681], { icon: pinkCircleIcon });
+        markerNapoli.bindPopup(popupContentNapoli);
+        markersGroup.addLayer(markerNapoli);
+
+        // 8. Marker TORINO (Politecnico di Torino - DIST)[cite: 1]
+        var popupContentDist = `
+            <div style="font-family: sans-serif; max-width: 280px; line-height: 1.4; word-break: break-word;">
+                <h3 style="margin: 0 0 8px 0; color: #1e293b; font-size: 15px;">Politecnico di Torino - Dipartimento Interateneo di Scienze, Progetto e Politiche del Territorio (DIST)</h3>
+                <p style="margin: 0 0 10px 0; font-size: 13px;"><a href="https://www.dist.polito.it" target="_blank" style="color: #2563eb; text-decoration: none;">www.dist.polito.it</a></p>
+                <p style="margin: 0 0 6px 0; font-size: 12px;"><strong>Keywords:</strong> rifugi climatici urbani, cortili scolastici, nature-based solutions, co-design, adattamento climatico, vulnerabilità climatica e sociale, comfort termico, giustizia climatica, innovazione istituzionale, open schooling</p>
+                <p style="margin: 0 0 6px 0; font-size: 12px;"><strong>Progetti:</strong> <a href="https://main-code.eu/" target="_blank" style="color: #2563eb; text-decoration: none;">DUT MAINCODE</a> - Mainstreaming Nature to Co-design Urban Climate Shelters in Schoolyards</p>
+                <p style="margin: 0 0 4px 0; font-size: 12px;"><strong>Altri link:</strong></p>
+                <ul style="margin: 0; padding-left: 15px; font-size: 11px;">
+                    <li style="margin-bottom: 3px;"><a href="http://www.urbanisticainformazioni.it/Rifugio-climatico.html" target="_blank" style="color: #2563eb; text-decoration: none;">Urbanistica Informazioni</a></li>
+                    <li style="margin-bottom: 3px;"><a href="https://www.geopop.it/cosa-sono-i-rifugi-climatici-contro-il-caldo-estremo-e-dove-trovarli-nelle-citta-italiane-la-mappa/" target="_blank" style="color: #2563eb; text-decoration: none;">Geopop</a></li>
+                    <li style="margin-bottom: 3px;"><a href="https://www.famigliacristiana.it/attualita/rifugi-climatici-urbani-cosa-sono-ugw79da8" target="_blank" style="color: #2563eb; text-decoration: none;">Famiglia Cristiana</a></li>
+                    <li><a href="https://www.raiplaysound.it/audio/2026/07/Radio3-Scienza-del-29072026-51a7b3f0-9d1d-4ade-9cdc-d3421956f063.html" target="_blank" style="color: #2563eb; text-decoration: none;">Radio3 Scienza</a></li>
+                </ul>
+            </div>
+        `;
+        var markerDist = L.marker([45.05415830928932, 7.686060696462985], { icon: pinkCircleIcon });
+        markerDist.bindPopup(popupContentDist);
+        markersGroup.addLayer(markerDist);
+
+        // 9. Aggiunta del gruppo di marker alla mappa[cite: 1]
+        map.addLayer(markersGroup);
+    </script>
+</body>
+</html>
