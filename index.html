@@ -38,31 +38,17 @@
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
 
     <script>
-        // 1. Inizializzazione della mappa (centrata per coprire anche Torino)[cite: 1]
+        // 1. Inizializzazione della mappa (centrata per coprire anche Torino)
         var map = L.map('map').setView([43.0, 11.5], 6);
 
-        // 2. Sfondo CartoDB con etichette e API Key[cite: 1]
+        // 2. Sfondo CartoDB con etichette e API Key
         L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}{r}.png?key=cb1_2uv1_1_532abe28d98c03841c78d707', {
             attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
             subdomains: 'abcd',
             maxZoom: 20
         }).addTo(map);
 
-        // 3. Icona a spill classica (Blu per Roma)[cite: 1]
-        var blueIcon = L.divIcon({
-            className: 'custom-map-marker',
-            html: `
-                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="#3b82f6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.3));">
-                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                    <circle cx="12" cy="10" r="3" fill="#fff"></circle>
-                </svg>
-            `,
-            iconSize: [28, 28],
-            iconAnchor: [14, 28],
-            popupAnchor: [0, -28]
-        });
-
-        // 4. Icona CIRCOLARE (Rosa per Napoli e Torino)[cite: 1]
+        // 3. Icona CIRCOLARE (Rosa per tutte le sedi)
         var pinkCircleIcon = L.divIcon({
             className: 'custom-map-marker',
             html: `
@@ -76,14 +62,14 @@
             popupAnchor: [0, -14]
         });
 
-        // 5. Creazione del gruppo di cluster con supporto all'espansione a raggiera[cite: 1]
+        // 4. Creazione del gruppo di cluster con supporto all'espansione a raggiera
         var markersGroup = L.markerClusterGroup({
             spiderfyOnMaxZoom: true,
             showCoverageOnHover: false,
             zoomToBoundsOnClick: true
         });
 
-        // 6. Marker ROMA (ENEA)
+        // 5. Marker ROMA 1 (ENEA)
         var popupContentEnea = `
             <div style="font-family: sans-serif; max-width: 280px; line-height: 1.4; word-break: break-word;">
                 <h3 style="margin: 0 0 8px 0; color: #1e293b; font-size: 15px;">ENEA - Dipartimento Tecnologie Energetiche e Fonti Rinnovabili (TERIN)</h3>
@@ -92,7 +78,7 @@
                     <a href="https://energia.enea.it/chi-siamo/il-dipartimento" target="_blank" style="color: #2563eb; text-decoration: none;">TERIN</a>
                 </p>
                 <p style="margin: 0 0 6px 0; font-size: 12px;"><strong>Keywords:</strong> M&V Comfort, Tecnologie di Mitigazione del Microclima, Consumi elettrici, Citizen Science per Indicatori e baseline abitudini/preferenze</p>
-                <p style="margin: 0 0 6px 0; font-size: 12px;"><strong>Progetti:</strong> nell’ambito della “Ricerca nazionale “Ricerca di Sistema Elettrico". Accordo di Programma MASE-ENEA “Tecnologie per la penetrazione efficiente del vettore elettrico negli usi finali (Progetto 1.7: Attività 1.20 Soluzioni tecnologiche integrate nelle CER).</p>
+                <p style="margin: 0 0 6px 0; font-size: 12px;"><strong>Progetti:</strong> nell’ambito della “Ricerca nazionale “Ricerca di Sistema Elettrico". Accordo di Programma MASE-ENEA “Tecnologie per la penetrazione efficiente del vettore elettrico negli usi finali (mitigazione del microclima locale).</p>
                 <p style="margin: 0 0 4px 0; font-size: 12px;"><strong>Altri link:</strong></p>
                 <ul style="margin: 0; padding-left: 15px; font-size: 11px;">
                     <li style="margin-bottom: 3px;"><a href="https://www.eventi.enea.it/tutti-gli-eventi-enea/evento-sui-rifugi-climatici.html" target="_blank" style="color: #2563eb; text-decoration: none;">Evento sui rifugi climatici</a></li>
@@ -101,11 +87,28 @@
                 </ul>
             </div>
         `;
-        var markerRoma = L.marker([41.934788941533554, 12.46445595919924], { icon: blueIcon });
+        var markerRoma = L.marker([41.934788941533554, 12.46445595919924], { icon: pinkCircleIcon });
         markerRoma.bindPopup(popupContentEnea);
         markersGroup.addLayer(markerRoma);
 
-        // 7. Marker NAPOLI (CLEANAP ETS)[cite: 1]
+        // 6. Marker ROMA 2 (AIGU - Via di Monte Giordano)
+        var popupContentAigu = `
+            <div style="font-family: sans-serif; max-width: 280px; line-height: 1.4; word-break: break-word;">
+                <h3 style="margin: 0 0 8px 0; color: #1e293b; font-size: 15px;">Associazione Italiana Giovani per l’UNESCO – ETS (AIGU)</h3>
+                <p style="margin: 0 0 10px 0; font-size: 13px;"><a href="https://aiguofficial.it" target="_blank" style="color: #2563eb; text-decoration: none;">aiguofficial.it</a></p>
+                <p style="margin: 0 0 6px 0; font-size: 12px;"><strong>Keywords:</strong> passeggiate climatiche, rifugi climatici, creatività e patrimonio culturale, resilienza climatica delle città, partecipazione giovanile, UNESCO, Agenda 2030, sostenibilità, progetti educativi</p>
+                <p style="margin: 0 0 6px 0; font-size: 12px;"><strong>Progetti:</strong> Accordo di collaborazione AIGU-ENEA sui temi della sostenibilità e dei rifugi climatici: partecipazione a webinar informativi e divulgativi curati da ENEA su ambiente, patrimonio e benessere termico; somministrazione di questionari e indagini; organizzazione di passeggiate climatiche, workshop ed esperienze di citizen science sul campo; svolgimento di focus group e laboratori educativi</p>
+                <p style="margin: 0 0 4px 0; font-size: 12px;"><strong>Altri link:</strong></p>
+                <ul style="margin: 0; padding-left: 15px; font-size: 11px;">
+                    <li><a href="https://openhouseroma.org/node/137684" target="_blank" style="color: #2563eb; text-decoration: none;">Open House Roma</a></li>
+                </ul>
+            </div>
+        `;
+        var markerAigu = L.marker([41.9001, 12.4715], { icon: pinkCircleIcon });
+        markerAigu.bindPopup(popupContentAigu);
+        markersGroup.addLayer(markerAigu);
+
+        // 7. Marker NAPOLI (CLEANAP ETS)
         var popupContentNapoli = `
             <div style="font-family: sans-serif; max-width: 280px; line-height: 1.4;">
                 <h3 style="margin: 0 0 8px 0; color: #1e293b; font-size: 16px;">CLEANAP ETS</h3>
@@ -119,7 +122,7 @@
         markerNapoli.bindPopup(popupContentNapoli);
         markersGroup.addLayer(markerNapoli);
 
-        // 8. Marker TORINO (Politecnico di Torino - DIST)[cite: 1]
+        // 8. Marker TORINO (Politecnico di Torino - DIST)
         var popupContentDist = `
             <div style="font-family: sans-serif; max-width: 280px; line-height: 1.4; word-break: break-word;">
                 <h3 style="margin: 0 0 8px 0; color: #1e293b; font-size: 15px;">Politecnico di Torino - Dipartimento Interateneo di Scienze, Progetto e Politiche del Territorio (DIST)</h3>
@@ -139,7 +142,7 @@
         markerDist.bindPopup(popupContentDist);
         markersGroup.addLayer(markerDist);
 
-        // 9. Aggiunta del gruppo di marker alla mappa[cite: 1]
+        // 9. Aggiunta del gruppo di marker alla mappa
         map.addLayer(markersGroup);
     </script>
 </body>
